@@ -4,7 +4,7 @@ export default class ItemsTable extends Component{
     render(){
         return(
             <tbody>
-                {this.props.smallData.map(e =><tr key={e.id+"-"+e.phone}>
+                {this.props.Data.map(e =><tr key={e.id+"-"+e.phone}>
                     <td>{e.id}</td>
                     <td>{e.firstName}</td>
                     <td>{e.lastName}</td>

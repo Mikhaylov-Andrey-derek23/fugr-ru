@@ -4,6 +4,8 @@ import SpinnerTable from '../SpinnerTable';
 import HeaderTable from '../HeaderTable';
 import Paginator from '../Paginator';
 import FiltterTable from '../FiltterTable';
+import AddnewItem from '../AddnewItem';
+import WindiowItem from '../WindiowItem';
 import FigurServis from '../../service';
 
 export default class App extends Component {
@@ -35,7 +37,10 @@ export default class App extends Component {
                 phone: '',
                 email: ''
             },
-            productData: []
+            productData: [],
+            modalWindowAddNewItem : false,
+            modalWindowItem : false
+
         }
         this.getData();
     }
@@ -53,19 +58,17 @@ export default class App extends Component {
 
     getStateData(data) {
         this.setState({ Data: data });
-        this.getProductData(data);
+        this.getProductData(data, this.state.filter);
         // this.createPasginator(data);
     }
 
-
-
-    getProductData(data) {
+    getProductData(data, filter) {
         const filterProductData = data.filter((e) => 
-            (e.id+'').toLowerCase().includes(this.state.filter.id.toLowerCase())
-            && (e.firstName+'').toLowerCase().includes(this.state.filter.firstName.toLowerCase())
-            && (e.lastName+'').toLowerCase().includes(this.state.filter.lastName.toLowerCase())
-            && (e.phone+'').toLowerCase().includes(this.state.filter.phone.toLowerCase())
-            && (e.email+'').toLowerCase().includes(this.state.filter.email.toLowerCase())
+            (e.id+'').toLowerCase().includes(filter.id.toLowerCase())
+            && (e.firstName+'').toLowerCase().includes(filter.firstName.toLowerCase())
+            && (e.lastName+'').toLowerCase().includes(filter.lastName.toLowerCase())
+            && (e.phone+'').toLowerCase().includes(filter.phone.toLowerCase())
+            && (e.email+'').toLowerCase().includes(filter.email.toLowerCase())
         );
         const productData = filterProductData.filter((e, key) => key >= this.state.paginator.startPoint && key < this.state.paginator.endPoint);
         this.setState({ productData: productData });
@@ -106,11 +109,12 @@ export default class App extends Component {
             paginator.currentPoint = paginator.paginatorPointEnd;
         };
         this.setState({ paginator: paginator });
-        this.getProductData(this.state.Data);
+        this.getProductData(this.state.Data, this.state.filter);
     }
 
     applyFilter(filter){
-        console.log(filter)
+        this.setState({filter : filter});
+        this.getProductData(this.state.Data, filter);
     }
 
     sortdata(e) {
@@ -121,25 +125,54 @@ export default class App extends Component {
             sortdata[indicator] = 1
             data.sort((a, b) => a[indicator] > b[indicator] ? 1 : -1);
             this.setState({ Data: data, sort: sortdata });
-            this.getProductData(data);
+            this.getProductData(data, this.state.filter);
         } else {
             data.sort((a, b) => a[indicator] < b[indicator] ? 1 : -1);
             sortdata[indicator] = 0
             this.setState({ Data: data, sort: sortdata });
-            this.getProductData(data);
+            this.getProductData(data, this.state.filter);
         }
     }
 
+    modalWindowAddNewItem(){
+        const modalWindowAddNewItem = this.state.modalWindowAddNewItem;
+        this.setState({modalWindowAddNewItem : !modalWindowAddNewItem});
+    }
+
+    addTable(item){
+        item.id = parseInt(item.id);
+        const modalWindowAddNewItem = this.state.modalWindowAddNewItem;
+        const data = this.state.Data;
+        data.unshift(item);
+        this.setState({Data : data, modalWindowAddNewItem : !modalWindowAddNewItem});
+        this.getProductData(data, this.state.filter);
+    }
+
+    selectItem(item){
+        this.setState({modalWindowItem : item});
+    }
+
+    modalWindowItemClose(){
+        this.setState({modalWindowItem : false});
+    }
+
+
     render() {
+        console.log(this.state.modalWindowItem);
         return (
             <div className="my-4 mx-auto w-75">
                 <h1 className="text-center">Table</h1>
-                {this.state.Data.length > 0 ? <FiltterTable applyFilter={e => this.applyFilter(fiter)}/> : ''}
+                {this.state.Data.length > 0 ? <FiltterTable applyFilter={e => this.applyFilter(e)}/> : ''}
                 <table className="table table-dark">
                     {this.state.Data.length > 0 ? <HeaderTable sortdata={e => this.sortdata(e)} sortStatus={this.state.sort} /> : <SpinnerTable />}
-                    {this.state.Data.length > 0 ? <ItemsTable Data={this.state.productData} /> : <SpinnerTable />}
+                    {this.state.Data.length > 0 ? <ItemsTable Data={this.state.productData} selectItem={e=>this.selectItem(e)}/> : <SpinnerTable />}
                 </table>
                 {this.state.Data.length > 0 ? <Paginator paginator={this.state.paginator} changePaginator={e => this.changePaginator(e)} /> : ''}
+                <div>
+                {!this.state.modalWindowAddNewItem ? <button type="button" className="btn btn-success mx-auto d-flex btn-lg" onClick={e=>this.modalWindowAddNewItem()}>Add new item in table</button> : ''}
+                </div>
+                {this.state.modalWindowAddNewItem ? <AddnewItem close={e=>this.modalWindowAddNewItem()} addTable={e=>this.addTable(e)}/> : ''}
+                {this.state.modalWindowItem ? <WindiowItem  data={this.state.modalWindowItem} close={e=>this.modalWindowItemClose()} /> : ''}
             </div>
         )
     }

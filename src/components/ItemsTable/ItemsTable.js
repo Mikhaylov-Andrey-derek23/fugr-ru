@@ -4,12 +4,12 @@ export default class ItemsTable extends Component{
     render(){
         return(
             <tbody>
-                {this.props.Data.map(e =><tr key={e.id+"-"+e.phone}>
-                    <td>{e.id}</td>
-                    <td>{e.firstName}</td>
-                    <td>{e.lastName}</td>
-                    <td>{e.phone}</td>
-                    <td>{e.email}</td>
+                {this.props.Data.map(el =><tr key={el.id+"-"+el.phone} onClick={e=>this.props.selectItem(el)} className="cursor-pointer">
+                    <td>{el.id}</td>
+                    <td>{el.firstName}</td>
+                    <td>{el.lastName}</td>
+                    <td>{el.phone}</td>
+                    <td>{el.email}</td>
                 </tr>)}
         </tbody>
         )

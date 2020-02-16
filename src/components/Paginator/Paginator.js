@@ -4,7 +4,6 @@ import "./Paginator.scss";
 export default class Paginator extends Component {
 
     render() {
-        console.log(this.props.paginator)
         return (
             <nav>
                 <ul className="pagination justify-content-center">
